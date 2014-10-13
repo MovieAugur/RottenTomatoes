@@ -35,6 +35,7 @@ public class RottenTomatoes
 		 //initializes the hash table with urls.
 	    	this.API_methods.put("Movie Reviews","/api/public/v1.0/movies/:id/reviews.json");
 	    	this.API_methods.put("MovieSearch","/api/public/v1.0/movies.json");
+	    	this.API_methods.put("inTheatres","/api/public/v1.0/lists/movies/in_theaters.json");
 	    }
 	 
 	public class Review 
@@ -91,6 +92,34 @@ public class RottenTomatoes
 		}
 		
 	}
+	
+	public List<Movie> get_inTheatre_movies() throws Exception
+	{
+		List<Movie> movie_list = new LinkedList<Movie>();
+		String final_uri = base_api + API_methods.get("inTheatres");
+		final_uri = final_uri + "?limit=16&country=us&apikey=" + key;
+		System.out.println(final_uri);
+		HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
+    	HttpRequestFactory requestFactory =  HTTP_TRANSPORT.createRequestFactory();
+    	GenericUrl url = new GenericUrl(final_uri);
+    	HttpRequest request = requestFactory.buildGetRequest(url);
+    	String response =  request.execute().parseAsString();
+   	 	JsonParser parser = new JsonParser();
+   	 	JsonObject jsonResponse = parser.parse(response).getAsJsonObject();
+   	 	JsonArray movies = jsonResponse.get("movies").getAsJsonArray();
+   	 	Gson gson = new Gson();
+   	 	JsonObject movie;
+   	 	Movie movie_element;
+   	 	for (int i = 0;i<movies.size();i++)
+   	 	{
+   	 		movie = movies.get(i).getAsJsonObject();
+   	 		movie_element =  gson.fromJson(movie, Movie.class);
+   	 		movie_list.add(movie_element);	
+   	 	}
+   	 	
+   	 	return movie_list;
+		
+	}
    
     /*method to get movieID from movies.
 	  returns Movie object.*/
@@ -111,9 +140,7 @@ public class RottenTomatoes
    	 	Gson gson = new Gson();
    	 	JsonObject movie = movies.get(0).getAsJsonObject();
    	 	Movie movie_element =  gson.fromJson(movie, Movie.class);
-   	 	return movie_element;
-    	
-    	
+   	 	return movie_element;  	
     }
     
     //container class for getReviewsFromPage
@@ -211,7 +238,12 @@ public class RottenTomatoes
     	/*Ratings rating = RT.get_movie_rating("gone girl");
     	System.out.println("audience score " + String.valueOf(rating.audience_score));
     	System.out.println("critics score " + String.valueOf(rating.critics_score));*/
-    	
+    	List <Movie> inTheatre_list;
+    	inTheatre_list = RT.get_inTheatre_movies();
+    	for (int i = 0;i<inTheatre_list.size();i++)
+    	{
+    		System.out.println(inTheatre_list.get(i).title);
+    	}
     	/*NLP analyser = new NLP();
     	int temp_sentiment;
     	String review;

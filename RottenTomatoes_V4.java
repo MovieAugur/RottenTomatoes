@@ -2,13 +2,8 @@ import java.util.*;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.HttpResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.JsonObjectParser;
-import com.google.api.client.util.Key;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -21,8 +16,6 @@ import java.net.URL;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
-
 
 
 public class RottenTomatoes
@@ -105,6 +98,9 @@ public class RottenTomatoes
 		}
 		
 	}
+	
+	
+	
 	
 	public List<Movie> get_inTheatre_movies() throws Exception
 	{
@@ -215,6 +211,7 @@ public class RottenTomatoes
     	ReviewPackage temp;
     	for (int i = 1;i<=number_ofCallsRequired;i++)
     	{
+    		Thread.sleep(3000);
     		temp = getReviewsFromPage(movie_id,50,1+i,category);
     		init.results.addAll(temp.results);
     	}
@@ -248,23 +245,24 @@ public class RottenTomatoes
 		os.close();
     }
     
-      private  void generateInputFile(String movie_name) throws Exception
+      public  String generateOutputFile(String movie_name) throws Exception
       {
-		File inputFile = new File(FILENAME);
+    	String Filename = movie_name;
+		File inputFile = new File(Filename);
 		FileWriter fileWriter;
 		List <String> critic_reviews = getAllReviews( movie_name,"critic");
 		List <String> all_reviews = getAllReviews( movie_name,"all");
 		Ratings rating = get_movie_rating(movie_name);
 		String Audience_Score =  String.valueOf(rating.audience_score);
 		String Critic_Score =  String.valueOf(rating.critics_score);
-		String commentCriticMeta = movie_name + "\t" + TEXT_DATA + "\t"
-				+ ROTTEN + "\t" + CRITIC + "\t";
-		String commentAudienceMeta = movie_name + "\t" + TEXT_DATA + "\t"
-				+ ROTTEN + "\t" + AUDIENCE + "\t";
-		String ScoreAudienceMeta = movie_name + "\t" + NUMERIC_DATA + "\t"
-				+ ROTTEN + "\t" + AUDIENCE + "\t";	
-		String ScoreCriticMeta = movie_name + "\t" + NUMERIC_DATA + "\t"
-				+ ROTTEN + "\t" + CRITIC + "\t";		
+		String commentCriticMeta = movie_name + "\t" + TEXT_DATA + 
+				 ROTTEN  + CRITIC + " ";
+		String commentAudienceMeta = movie_name + "\t" + TEXT_DATA + 
+				 ROTTEN  + AUDIENCE + " ";
+		String ScoreAudienceMeta = movie_name + "\t" + NUMERIC_DATA +
+				 ROTTEN  + AUDIENCE + " ";	
+		String ScoreCriticMeta = movie_name + "\t" + NUMERIC_DATA 
+				+ ROTTEN  + CRITIC + " ";		
 		try {
 
 			inputFile.createNewFile();
@@ -281,14 +279,16 @@ public class RottenTomatoes
 				bw.newLine();
 			}
 			
-			bw.write(ScoreAudienceMeta + "\t" + Audience_Score);
+			bw.write(ScoreAudienceMeta  + Audience_Score);
 			bw.newLine();
-			bw.write(ScoreCriticMeta + "\t" + Critic_Score);
+			bw.write(ScoreCriticMeta  + Critic_Score);
 			bw.newLine();
 			bw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		return Filename;
 	}
    
    /*contains example calls which were used to unit test functionality
@@ -296,8 +296,30 @@ public class RottenTomatoes
     public static void main(String[] args) throws Exception
     {
      
+    	if (args.length < 3)
+    		throw new UnsupportedOperationException();
     	RottenTomatoes RT = new RottenTomatoes();
-    	RT.generateInputFile("gone girl");
+    	String bucket_name = args[0];
+    	S3Utility s3client = new S3Utility(bucket_name,args[1]);
+    	int arg_count = 2;
+    	String filename;
+    	List<String> movies = new ArrayList<String>();
+    	while (arg_count < args.length)
+    	{
+    		String temp_movie = args[arg_count].replace("_", " ");//for anirrudha's code.
+    		movies.add(temp_movie);
+    		arg_count++;
+    	}
+    	//System.out.println((movies.toString()));
+    	for (int i = 0;i < movies.size();i++)
+    	{
+    		Thread.sleep(100000);//sleep for 100 seconds, so that API limit is not violated.
+    		filename =  RT.generateOutputFile(movies.get(i));
+    		s3client.uploadFile(filename);
+   
+    	}
+    	
+    	//RT.generateOutputFile("gone girl");
     	
     	/*RT.get_movie_posters("gone girl","image.jpg");*/
     	

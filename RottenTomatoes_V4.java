@@ -329,6 +329,7 @@ public class RottenTomatoes
     	{
     		for (int i = 0;i < movies.size();i++)
 	    	{
+    			System.out.println("downloading poster of "+movies.get(i));
 	    		Thread.sleep(10000);//sleep for 10 seconds, so that API limit is not violated.
 	    		RT.get_movie_posters(movies.get(i),movies.get(i)+ ".jpg");
 	    	}

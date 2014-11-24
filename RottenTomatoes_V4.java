@@ -136,7 +136,8 @@ public class RottenTomatoes
     {
     	//create the final url by appending key,page limit and page number.
     	String final_uri = base_api + API_methods.get("MovieSearch");
-    	final_uri = final_uri + "?q=" + movie_name + "&page_limit=1&page=1&apikey=" + key;
+    	//Hardcoding Anirrudha's key to prevent violation of query limits.
+    	final_uri = final_uri + "?q=" + movie_name + "&page_limit=1&page=1&apikey=" + "2d85u2btkfxrt45yrzkpjxe2";
     	//System.out.println(final_uri);
     	HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
     	HttpRequestFactory requestFactory =  HTTP_TRANSPORT.createRequestFactory();
@@ -296,12 +297,14 @@ public class RottenTomatoes
     public static void main(String[] args) throws Exception
     {
      
-    	if (args.length < 3)
+    	if (args.length < 4)
     		throw new UnsupportedOperationException();
+    	String option = args[0];//if option = "-c" upload a file with score and reviews
+    	// if option = "-p" retrieve movie posters and save in a folder.
     	RottenTomatoes RT = new RottenTomatoes();
-    	String bucket_name = args[0];
-    	S3Utility s3client = new S3Utility(bucket_name,args[1]);
-    	int arg_count = 2;
+    	String bucket_name = args[1];
+    	S3Utility s3client = new S3Utility(bucket_name,args[2]);
+    	int arg_count = 3;
     	String filename;
     	List<String> movies = new ArrayList<String>();
     	while (arg_count < args.length)
@@ -311,12 +314,24 @@ public class RottenTomatoes
     		arg_count++;
     	}
     	//System.out.println((movies.toString()));
-    	for (int i = 0;i < movies.size();i++)
+    	if (option == "-c")
     	{
-    		Thread.sleep(100000);//sleep for 100 seconds, so that API limit is not violated.
-    		filename =  RT.generateOutputFile(movies.get(i));
-    		s3client.uploadFile(filename);
-   
+	    	for (int i = 0;i < movies.size();i++)
+	    	{
+	    		Thread.sleep(100000);//sleep for 100 seconds, so that API limit is not violated.
+	    		filename =  RT.generateOutputFile(movies.get(i));
+	    		s3client.uploadFile(filename);
+	   
+	    	}
+    	}
+    	
+    	else if (option == "-p")
+    	{
+    		for (int i = 0;i < movies.size();i++)
+	    	{
+	    		Thread.sleep(10000);//sleep for 10 seconds, so that API limit is not violated.
+	    		RT.get_movie_posters(movies.get(i),movies.get(i)+ ".jpg");
+	    	}
     	}
     	
     	//RT.generateOutputFile("gone girl");

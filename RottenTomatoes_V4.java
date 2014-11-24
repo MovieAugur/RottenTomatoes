@@ -314,7 +314,7 @@ public class RottenTomatoes
     		arg_count++;
     	}
     	//System.out.println((movies.toString()));
-    	if (option == "-c")
+    	if (option.equalsIgnoreCase("-c") )
     	{
 	    	for (int i = 0;i < movies.size();i++)
 	    	{
@@ -325,7 +325,7 @@ public class RottenTomatoes
 	    	}
     	}
     	
-    	else if (option == "-p")
+    	else if (option.equalsIgnoreCase("-p"))
     	{
     		for (int i = 0;i < movies.size();i++)
 	    	{
@@ -333,6 +333,7 @@ public class RottenTomatoes
 	    		RT.get_movie_posters(movies.get(i),movies.get(i)+ ".jpg");
 	    	}
     	}
+    	
     	
     	//RT.generateOutputFile("gone girl");
     	

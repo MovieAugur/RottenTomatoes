@@ -55,21 +55,21 @@ public class starcast
 				FileReader fr = new FileReader(path);
 				BufferedReader br = new BufferedReader(fr);
 				int count = 0;//get only top 10 actors
-				while ((CurrentLine = br.readLine()) != null && count <10) 
+				while ((CurrentLine = br.readLine()) != null ) 
 				{
 					parts = CurrentLine.split("\t");
 					if (parts.length!=2)
 						continue;
 					movie_name = parts[0];
-					//System.out.println(movie_name);
+					System.out.println(movie_name);
 					actor_name = parts[1];
 					cast.add(actor_name);
-					count++;
+					//count++;
 				}
 				starmap.put(movie_name, cast);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				//System.out.println("unable to read cast for movie" + path);
+				System.out.println("unable to read cast for movie" + path);
 				e.printStackTrace();
 			}
 	 }
@@ -82,14 +82,14 @@ public class starcast
 		   String file_path;
 		   if (files==null)
 			   {
-			   		//System.out.println("null in directory");
+			   		System.out.println("null in directory");
 			   }
 		   else
 		   {
 			   for (int i = 0;i<files.length;i++)
 			   {
 				   file_path = files[i].getAbsolutePath();
-				   //System.out.println(file_path);
+				   System.out.println(file_path);
 				   get_cast(file_path);   
 			   }
 		   }
@@ -100,6 +100,16 @@ public class starcast
 		
 			read_folder(args[0]);//read cast
 			load_worth(args[1]);//read star values
+			String Filename = "starpower.txt";
+			File inputFile = new File(Filename);
+			FileWriter fileWriter;
+			if (inputFile.exists())
+			{
+				inputFile.delete();
+			}
+			inputFile.createNewFile();
+			fileWriter = new FileWriter(inputFile);
+			BufferedWriter bw = new BufferedWriter(fileWriter);
 			for (Map.Entry<String, ArrayList<String>> entry : starmap.entrySet()) 
 			{
 			    String key = entry.getKey();
@@ -113,14 +123,17 @@ public class starcast
 			    	}
 			    }
 			    starpower.put(key, worth);
+			    String data = key+"\t"+worth;
+				bw.write(data);
+				bw.newLine();
 			    System.out.println(key+"\t"+worth);
+			    //write data into a file
+			    
 			    //System.out.println(worth);
-			    //System.out.println("***************************************************");
-			    
-			    
-			    
+			    //System.out.println("***************************************************");	    
 			}
-		
+			bw.close();
+			System.out.println("starpower file generated.");
 
 	}
 

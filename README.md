@@ -1,6 +1,8 @@
 RottenTomatoes
 ==============
 
+rotten_final.java and starpower.java are the final consolidated files 
+
 Java client to get Reviews from RT.
 gets movienames as arguments from augur_framework
 

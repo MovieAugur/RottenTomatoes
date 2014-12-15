@@ -1,3 +1,6 @@
+//usage 
+//java <jar> <input_folder containing cast files for movies> <file containing star-worth mapping>
+
 import java.awt.List;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
